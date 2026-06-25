@@ -86,95 +86,175 @@ Event ini akan mempersembahkan musik yang dibutuhkan Mayoritas Gen Z dengan gabu
 <div id="loading">Sedang memproses...</div>
 
 <script>
-const items = JSON.parse(localStorage.getItem('checkout_items') || "[]");
-const total = localStorage.getItem('totalPembayaran') || 0;
-const jumlahTiket = localStorage.getItem('jumlahTiket') || 0;
+
+const items = JSON.parse(
+ localStorage.getItem('checkout_items') || '[]'
+);
+
+const total = Number(
+ localStorage.getItem('totalPembayaran') || 0
+);
+
+const jumlahTiket = Number(
+ localStorage.getItem('jumlahTiket') || 0
+);
+
+const namaEl = document.getElementById('nama');
+const identitasEl = document.getElementById('identitas');
+const nomorIdEl = document.getElementById('nomorId');
+const emailEl = document.getElementById('email');
+const waEl = document.getElementById('wa');
+const alamatEl = document.getElementById('alamat');
+
+const setuju1El = document.getElementById('setuju1');
+const setuju2El = document.getElementById('setuju2');
+
+const loadingEl = document.getElementById('loading');
+const lanjutBtn = document.getElementById('lanjut');
 
 document.getElementById('totalBayar').innerText =
-'Rp' + Number(total).toLocaleString('id-ID');
+'Rp'+total.toLocaleString('id-ID');
 
-document.getElementById('jumlahTiket').innerText = jumlahTiket;
+document.getElementById('jumlahTiket').innerText =
+jumlahTiket;
 
-// render detail tiket
-let htmlDetail = '';
+let htmlDetail='';
+
 items.forEach(item=>{
-  let subtotal = item.qty * item.harga;
-  htmlDetail += `
-  <div class="summary-row">
-    <span>${item.nama} (${item.qty})</span>
-    <strong>Rp ${subtotal.toLocaleString('id-ID')}</strong>
-  </div>`;
+
+ const subtotal=item.qty*item.harga;
+
+ htmlDetail += `
+ <div class="summary-row">
+   <span>${item.nama} (${item.qty})</span>
+   <strong>Rp ${subtotal.toLocaleString('id-ID')}</strong>
+ </div>`;
 });
 
-document.getElementById('detailTiket').innerHTML = htmlDetail;
+document.getElementById('detailTiket').innerHTML =
+htmlDetail;
 
-// jenis tiket text
-let jenis = items.map(i=>`${i.nama} (${i.qty})`).join(', ');
-document.getElementById('jenisTiket').innerText = jenis || '-';
+const jenis =
+items.map(i=>`${i.nama} (${i.qty})`).join(', ');
 
-document.getElementById('lanjut').onclick=function(){
+document.getElementById('jenisTiket').innerText =
+jenis || '-';
 
-const wajib=['nama','identitas','nomorId','email','wa','alamat'];
+function saveDraft(){
 
-for(let id of wajib){
- if(!document.getElementById(id).value.trim()){
-   alert('Mohon lengkapi semua data.');
+ localStorage.setItem('draft_nama',namaEl.value);
+ localStorage.setItem('draft_identitas',identitasEl.value);
+ localStorage.setItem('draft_nomorId',nomorIdEl.value);
+ localStorage.setItem('draft_email',emailEl.value);
+ localStorage.setItem('draft_wa',waEl.value);
+ localStorage.setItem('draft_alamat',alamatEl.value);
+}
+
+function restoreDraft(){
+
+ namaEl.value =
+ localStorage.getItem('draft_nama') || '';
+
+ identitasEl.value =
+ localStorage.getItem('draft_identitas') || '';
+
+ nomorIdEl.value =
+ localStorage.getItem('draft_nomorId') || '';
+
+ emailEl.value =
+ localStorage.getItem('draft_email') || '';
+
+ waEl.value =
+ localStorage.getItem('draft_wa') || '';
+
+ alamatEl.value =
+ localStorage.getItem('draft_alamat') || '';
+}
+
+restoreDraft();
+
+[namaEl,identitasEl,nomorIdEl,emailEl,waEl,alamatEl]
+.forEach(el=>{
+ el.addEventListener('input',saveDraft);
+ el.addEventListener('change',saveDraft);
+});
+
+lanjutBtn.onclick = async function(){
+
+ const wajib=[
+  namaEl,
+  identitasEl,
+  nomorIdEl,
+  emailEl,
+  waEl,
+  alamatEl
+ ];
+
+ for(const field of wajib){
+
+   if(!field.value.trim()){
+
+     alert('Mohon lengkapi semua data.');
+     return;
+   }
+ }
+
+ if(!setuju1El.checked || !setuju2El.checked){
+
+   alert('Centang seluruh persetujuan.');
    return;
  }
-}
 
-if(!document.getElementById('setuju1').checked || !document.getElementById('setuju2').checked){
- alert('Centang seluruh persetujuan.');
- return;
-}
+ lanjutBtn.disabled = true;
 
-localStorage.setItem('nama',nama.value);
-localStorage.setItem('identitas',identitas.value);
-localStorage.setItem('nomorIdentitas',nomorId.value);
-localStorage.setItem('email',email.value);
-localStorage.setItem('wa',wa.value);
-localStorage.setItem('alamat',alamat.value);
+ localStorage.setItem('jenisTiket',jenis);
+ localStorage.setItem('jumlahTiket',jumlahTiket);
 
-/* EMAILJS */
+ localStorage.setItem('nama',namaEl.value);
+ localStorage.setItem('identitas',identitasEl.value);
+ localStorage.setItem('nomorId',nomorIdEl.value);
+ localStorage.setItem('email',emailEl.value);
+ localStorage.setItem('wa',waEl.value);
+ localStorage.setItem('alamat',alamatEl.value);
 
-emailjs.send(
-    "service_yd8tw3d",
-    "template_j1qoktj",
-    {
-        nama: nama.value,
-        identitas: identitas.value,
-        nomor_id: nomorId.value,
-        email: email.value,
-        whatsapp: wa.value,
-        alamat: alamat.value,
-        jenis_tiket: jenisTiket,
-        jumlah_tiket: jumlahTiket,
-        total_bayar: total
-    }
-)
-.then(function(response){
-    console.log("EMAIL TERKIRIM", response.status);
-})
-.catch(function(error){
-    console.log("GAGAL KIRIM", error);
-});
+ loadingEl.style.display='flex';
 
-/* END EMAILJS */
+ try{
 
-document.getElementById('loading').style.display='flex';
-setTimeout(()=>{
- window.location.href='qris.html';
-},3000);
-}
- </script>
- 
- <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
- 
-<script>
-emailjs.init({
-    publicKey: "y4j_lyUd5nO86DRgZ"
-});
+   await fetch(
+     'https://formspree.io/f/mojojdpl',
+     {
+       method:'POST',
+       headers:{
+         'Content-Type':'application/json',
+         'Accept':'application/json'
+       },
+       body:JSON.stringify({
+         nama:namaEl.value,
+         identitas:identitasEl.value,
+         nomor_id:nomorIdEl.value,
+         email:emailEl.value,
+         whatsapp:waEl.value,
+         alamat:alamatEl.value,
+         jenis_tiket:jenis,
+         jumlah_tiket:jumlahTiket,
+         total_bayar:total
+       })
+     }
+   );
+
+ }catch(e){
+   console.log(e);
+ }
+
+ setTimeout(()=>{
+
+   location.href='qris.html';
+
+ },1500);
+};
+
 </script>
 
 </body>
-</html> 
+</html>
