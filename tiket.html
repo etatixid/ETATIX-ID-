@@ -103,165 +103,30 @@
 <button id="checkout" class="buy" disabled>BELI TIKET</button>
 </div>
 
-
 <script>
-const harga = {
- d1:130000,
- d2:130000,
- VIP1:250000
- VIP2:250000
-};
+const tickets=[["FESTIVAL DAY 1",130000],["FESTIVAL DAY 2",130000],["FESTIVAL VIP 1",250000],["FESTIVAL VIP 2",250000]];
+const cart={},cards=document.getElementById('cards');
+const rp=n=>"Rp "+n.toLocaleString('id-ID');
 
-function showQty(id,btn){
- document.getElementById(id).classList.remove('hidden');
- btn.style.display='none';
+tickets.forEach((t,i)=>{
+cart[t[0]]=0;
+cards.innerHTML+=`<div class="ticket"><div class="top"><div class="name">${t[0]}</div><div class="sale">ON SALE</div></div><div class="meta">• Tiket resmi ETATIX<br>• Akses masuk sesuai kategori<br>• Transaksi aman & terpercaya</div><div class="divider"></div><div class="bottom"><div class="price">${rp(t[1])}</div><div><button class="select-btn" id="s${i}" onclick="start(${i})">Pilih Tiket</button><div class="qty" id="q${i}"><button class="qbtn" onclick="minus(${i})">−</button><div id="n${i}">1</div><button class="qbtn" onclick="plus(${i})">+</button></div></div></div><div class="brand-footer">Official Ticketing Partner • ETATIX</div></div>`;
+});
+
+function start(i){cart[tickets[i][0]]=1;toggle(i,false);render(i)}
+function plus(i){cart[tickets[i][0]]++;render(i)}
+function minus(i){cart[tickets[i][0]]--;if(cart[tickets[i][0]]<=0){cart[tickets[i][0]]=0;toggle(i,true)}render(i)}
+function toggle(i,s){document.getElementById('s'+i).style.display=s?'block':'none';document.getElementById('q'+i).style.display=s?'none':'flex'}
+function render(i){
+let e=document.getElementById('n'+i); if(e)e.textContent=cart[tickets[i][0]];
+let qty=0,total=0,items=[];
+tickets.forEach(t=>{let q=cart[t[0]]; if(q){qty+=q; total+=q*t[1]; items.push({jenis:t[0],jumlah:q,harga:t[1]})}});
+qtyText.textContent=`${qty} Tiket Dipilih`;
+totalText.textContent=rp(total);
+checkout.disabled=!qty;
+localStorage.setItem('etatix_cart',JSON.stringify({items,totalQty:qty,totalPrice:total}));
 }
-
-function chg(id,v){
-
- const input=document.getElementById(id);
-
- let qty=parseInt(input.value)+v;
-
- if(qty<0) qty=0;
- if(qty>10) qty=10;
-
- input.value=qty;
-
- updateTotal();
-}
-
-function updateTotal(){
-
- const d1=parseInt(document.getElementById('d1').value);
- const d2=parseInt(document.getElementById('d2').value);
- const
-VIP1=parseInt(document.getElementById('VIP1').value);
- const VIP2=parseInt(document.getElementById('VIP2').value); 
-
-
- const totalQty=d1+d2+VIP1+VIP2;
-
- const total=
- (d1*harga.d1)+
- (d2*harga.d2)+
- (VIP1*harga.VIP1)+
-(VIP2*harga.VIP2) ;
-
- document.getElementById('qtyText').innerText=
- 'Jumlah ('+totalQty+' tiket)';
-
- document.getElementById('total').innerText=
- 'Rp '+total.toLocaleString('id-ID');
-
- localStorage.setItem('day1_qty',d1);
- localStorage.setItem('day2_qty',d2);
- localStorage.setItem('VIP1_qty',VIP1);
- localStorage.setItem('VIP2_qty',VIP2);
- localStorage.setItem('totalPembayaran',total);
-}
-
-function checkout(){
-
- const d1=parseInt(document.getElementById('d1').value);
- const d2=parseInt(document.getElementById('d2').value);
- const VIP1=parseInt(document.getElementById('VIP1').value);
-VIP2=parseInt(document.getElementById('VIP2').value);
-
- const totalQty=d1+d2+VIP1+VIP2;
-
- if(totalQty<1){
-   alert('Pilih tiket terlebih dahulu');
-   return;
- }
-
- const items=[];
-
- if(d1>0){
-   items.push({
-     nama:'DAY 1 FESTIVAL',
-     qty:d1,
-     harga:130000
-   });
- }
-
- if(d2>0){
-   items.push({
-     nama:'DAY 2 FESTIVAL',
-     qty:d2,
-     harga:130000
-   });
- }
-
- if(pass>0){
-   items.push({
-     nama:'VIP 1 FESTIVAL',
-     qty:VIP1,
-     harga:250000
-   });
- }
-
- if(pass>0){
-   items.push({
-     nama:'VIP 2 FESTIVAL',
-     qty:VIP2,
-     harga:250000
-   });
- }
- localStorage.setItem('checkout_items',JSON.stringify(items));
- localStorage.setItem('jumlahTiket',totalQty);
-
- location.href='form.html';
-}
-
-function restoreData(){
-
- const d1Val=parseInt(localStorage.getItem('day1_qty'))||0;
- const
- d2Val=parseInt(localStorage.getItem('day2_qty'))||0;
- const
- VIP1Val=parseInt(localStorage.getItem('VIP1_qty'))||0;
- const
-VIP2Val=parseInt(localStorage.getItem('VIP1_qty'))||0;
-const
-
- document.getElementById('d1').value=d1Val;
- document.getElementById('d2').value=d2Val;
- document.getElementById('pass').value=VIP1Val;
-document.getElementById('pass').value=VIP2Val;
-
- if(d1Val>0){
-   document.getElementById('q1').classList.remove('hidden');
-   const btn=document.querySelector('[onclick="showQty(\'q1\',this)"]');
-   if(btn) btn.style.display='none';
- }
-
- if(d2Val>0){
-   document.getElementById('q2').classList.remove('hidden');
-   const btn=document.querySelector('[onclick="showQty(\'q2\',this)"]');
-   if(btn) btn.style.display='none';
- }
-
- if(VIP1Val>0){
-   document.getElementById('q3').classList.remove('hidden');
-   const btn=document.querySelector('[onclick="showQty(\'q3\',this)"]');
-   if(btn) btn.style.display='none';
- }
-
- updateTotal();
-}
-
-if(VIP2Val>0){
-   document.getElementById('q3').classList.remove('hidden');
-   const btn=document.querySelector('[onclick="showQty(\'q3\',this)"]');
-   if(btn) btn.style.display='none';
- }
-
- updateTotal();
-}
-
-restoreData();
+checkout.onclick=()=>location.href='form.html';
 </script>
-
 </body>
 </html>
