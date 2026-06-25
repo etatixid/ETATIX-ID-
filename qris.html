@@ -10,8 +10,8 @@
 
 body{overflow-x:hidden;
 background:
-radial-gradient(circle at top left, rgba(255,215,0,.12), transparent 35%),
-linear-gradient(135deg,#12051f,#2d0b45,#4c1d95,#7e22ce);
+radial-gradient(circle at top left, rgba(96,165,250,.18), transparent 35%),
+linear-gradient(135deg,#0f172a,#1e40af,#2563eb,#60a5fa);
 color:#fff;
 padding:20px;
 min-height:100vh;
@@ -35,7 +35,7 @@ color:rgba(255,255,255,.7);
 }
 
 .order{
-color:#FFD700;
+color:#60a5fa;
 font-weight:700;
 font-size:18px;
 }
@@ -43,7 +43,7 @@ font-size:18px;
 .total{
 font-size:34px;
 font-weight:800;
-color:#FFD700;
+color:#60a5fa;
 }
 
 .info{
@@ -69,7 +69,7 @@ margin-bottom:5px;
 .timer{
 font-size:32px;
 font-weight:800;
-color:#FFD700;
+color:#60a5fa;
 }
 
 .qrwrap{text-align:center}
@@ -123,7 +123,7 @@ margin-top:20px;
 padding:18px;
 border:none;
 border-radius:16px;
-background:linear-gradient(135deg,#FFD700,#FFB300);
+background:linear-gradient(135deg,#60a5fa,#2563eb);
 color:#111;
 font-weight:800;
 cursor:pointer;
@@ -187,6 +187,12 @@ animation:r 1s linear infinite;
 <div class="qr">
 <img src="qris.png" alt="QRIS">
 </div>
+<div style="text-align:center;margin-top:18px">
+<div style="font-size:12px;letter-spacing:2px;opacity:.8">TOTAL PEMBAYARAN</div>
+<div id="totalGlow" style="font-size:56px;font-weight:900;color:#fff;text-shadow:0 0 15px #60a5fa,0 0 35px #60a5fa;">
+Rp 0
+</div>
+</div>
 
 </div>
 
@@ -232,7 +238,7 @@ document.getElementById('orderId').textContent=localStorage.getItem('orderId');
 document.getElementById('total').textContent='Rp '+
 Number(localStorage.getItem('totalPembayaran')||0).toLocaleString('id-ID');
 
-document.getElementById('jenisTiket').textContent=localStorage.getItem('jenisTiket')||'-';
+document.getElementById('jenisTiket').textContent=localStorage.getItem('jenisTiket')||'-';setTimeout(()=>{const e=document.getElementById('totalGlow');if(e)e.textContent=document.getElementById('total').textContent;},10);
 document.getElementById('jumlahTiket').textContent=localStorage.getItem('jumlahTiket')||'0';
 document.getElementById('namaPemesan').textContent=localStorage.getItem('nama')||'-';
 document.getElementById('waPemesan').textContent=localStorage.getItem('wa')||'-';
